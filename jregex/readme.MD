@@ -1,4 +1,9 @@
-What is JRegex?    
+
+forked from http://jregex.sourceforge.net/ and enhance it more compatiable with standard jdk .
+
+
+***What is JRegex?    
+
 The JRegex is compact and efficient regular expression library for Java. It provides support for full perl5.6 regex syntax and is compliant with unicode.org's regex guidelines.    
 Besides that, jregex supports named groups (existing in Python regexes but neither in perl nor in other java libs), and incomplete matching, which is hardly found elsewhere.    
 Fast string search algorithms also are on the schedule.    
