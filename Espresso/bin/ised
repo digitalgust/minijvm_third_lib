@@ -1,0 +1,21 @@
+:
+#
+# mysed regexp1 regexp2 file1 ... [fileN]
+#
+
+case $# in
+0|1|2)	echo "usage: $0 regexp1 regexp2 file1 ... [fileN]"; exit 1
+esac
+
+TMPFILE=/tmp/mysed.$$
+REGEXP1=$1
+REGEXP2=$2
+
+shift; shift;
+for i in $*
+do
+	echo $i
+	sed "s/$REGEXP1/$REGEXP2/g" < $i > $TMPFILE
+	mv $TMPFILE $i
+done
+

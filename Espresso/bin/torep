@@ -1,0 +1,22 @@
+:
+#
+# Fix a project file to be committed
+# fromrep file1.proj
+#
+
+case $# in
+0)	echo "usage: $0 file1.proj"; exit 1
+esac
+
+TMPFILE=/tmp/mysed.$$
+REGEXP1=$HOME
+REGEXP2=HOME
+
+for i in $*
+do
+	echo "Copying original file to $i.local ..."
+	cp $i $i.local
+	sed "s $REGEXP1 $REGEXP2 g" < $i > $TMPFILE
+	mv $TMPFILE $i
+done
+

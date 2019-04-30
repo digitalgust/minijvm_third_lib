@@ -1,0 +1,9 @@
+:
+
+for i in $*
+do
+	echo "Compiling" $i "..."
+	espresso $i 
+#	echo "Continue ... <enter>"
+#	read
+done

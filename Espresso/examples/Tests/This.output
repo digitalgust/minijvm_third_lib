@@ -1,0 +1,4 @@
+This.print()
+Super.print()
+called via invokespecial
+called via invokevirtual

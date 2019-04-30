@@ -1,0 +1,10 @@
+#!/bin/sh
+# This file was created by jinstall
+# Created on Thu Jan 22 18:37:19 EST 1998 by santiago
+if [ -z ${CLASSPATH:=""} ] ; then
+	CLASSPATH=$HOME/espresso/JavaCC/JavaCC.zip
+else
+	CLASSPATH=$HOME/espresso/JavaCC/JavaCC.zip:${CLASSPATH}
+fi
+export CLASSPATH
+exec java -Dinstall.root=$HOME/espresso/JavaCC/ COM.sun.labs.jjtree.Main "$@"

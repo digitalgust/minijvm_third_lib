@@ -1,0 +1,5 @@
+# Generate documentation - S.M.Pericas
+
+cd $HOME
+
+javadoc -private -d espresso/HTML espresso espresso.classfile espresso.classfile.classgen espresso.classfile.javaclass espresso.classfile.util espresso.parser espresso.syntaxtree espresso.util

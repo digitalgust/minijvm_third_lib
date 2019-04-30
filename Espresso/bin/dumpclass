@@ -1,0 +1,10 @@
+#!/bin/sh
+# Created by santiago
+
+if [ -z ${CLASSPATH:=""} ] ; then
+	CLASSPATH=$HOME/espresso/JavaClass
+else
+	CLASSPATH=$HOME/espresso/JavaClass:${CLASSPATH}
+fi
+export CLASSPATH
+exec java listclass $*

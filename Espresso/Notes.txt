@@ -1,0 +1,97 @@
+
+
+Type Checking
+-------------
+
+References: + (not finished), o (finished), +/o (not finished but usable), <blank> (not even started)
+
+MODULE                                   STATUS              IMPLEMENTOR/COMMENT
+----------------------------------------------------------------------------------------------------
+AdditiveExpNode.java                       o                 Santiago
+AllocationExpNode.java                     +                 Karl (problem in grammar)
+AndExpNode.java                            o                 Santiago
+ArrayExpNode.java                          o                 Karl    
+ArrayInitializerNode.java                  o/+               Karl    
+AssignmentNode.java                        +                 Santiago/Karl
+BlockNode.java                             o                 Santiago
+BooleanLiteral.java                        o                 Karl
+BreakStatementNode.java                    o                 Santiago
+CastExpNode.java                           o                 Karl/Santiago
+CharacterLiteral.java                      o                 Karl
+ClassBodyDeclarationNode.java              o                 Santiago
+ClassDeclarationNode.java                  o/+               Santiago
+CompilationUnitNode.java                   o                 Santiago
+ConditionalAndExpNode.java                 o                 Karl
+ConditionalExpNode.java                    o/+               Santiago
+ConditionalOrExpNode.java                  o                 Karl
+ConstructorDeclarationNode.java            o                 Santiago
+ConstructorInvocationNode.java             o                 Karl
+ContinueStatementNode.java                 o                 Santiago
+DoStatementNode.java                       o                 Santiago
+DoubleLiteral.java                         o                 Karl
+EmptyStatementNode.java                    o                 Santiago
+EqualityExpNode.java                       o                 Santiago
+ExclusiveOrExpNode.java                    o                 Santiago
+ExpressionNode.java                        o                 Santiago
+FieldDeclarationNode.java                  +                 Karl
+FieldExpNode.java                          o                 Santiago
+FloatLiteral.java                          o                 Karl
+ForStatementNode.java                      o                 Santiago
+FormalExpNode.java                         o                 Karl
+FormalParameterNode.java                   o                 Santiago
+IfStatementNode.java                       o                 Santiago
+InclusiveOrExpNode.java                    o                 Santiago
+InstanceOfExpNode.java                     o                 Santiago
+IntegerLiteral.java                        o                 Karl
+InterfaceDeclarationNode.java              o/+               Santiago
+InterfaceMemberDeclarationNode.java        o                 Santiago
+LabeledStatementNode.java                  o                 Santiago
+Literal.java                               o                 Karl
+LocalExpNode.java                          o                 Santiago
+LocalVarDeclarationNode.java               o                 Karl
+LongLiteral.java                           o                 Karl
+MethodDeclarationNode.java                 o                 Santiago
+MethodExpNode.java                         o                 Karl
+MultiplicativeExpNode.java                 o                 Santiago
+NullLiteral.java                           o                 Karl
+PackageExpNode.java                        o                 Santiago
+PostfixMinusExp.java                       o                 Santiago
+PostfixPlusExp.java                        o                 Santiago
+PreDecrementExpNode.java                   o                 Santiago
+PreIncrementExpNode.java                   o                 Santiago
+RelationalExpNode.java                     o                 Santiago
+ReturnStatementNode.java                   o                 Karl
+ShiftExpNode.java                          o                 Santiago
+StatementExpListNode.java                  o                 Santiago
+StatementExpNode.java                      o                 Karl
+StatementNode.java                         o                 Santiago
+StaticInitializerNode.java                 o                 Santiago
+StringLiteral.java                         o                 Karl
+SuperExpNode.java                          +                 Karl
+SwitchLabelNode.java                       o                 Santiago
+SwitchStatementNode.java                   o                 Santiago
+SymbolExpNode.java                         o                 Santiago
+SynchronizedStatementNode.java             o                 Santiago
+SyntaxTreeNode.java                        o                 Santiago
+ThisExpNode.java                           +                 Karl
+ThrowStatementNode.java                    o/+               Santiago
+TryStatementNode.java                      o/+               Santiago
+TypeDeclarationNode.java                   o                 Santiago
+TypeExpNode.java                           o                 Karl
+UnaryMinusExpNode.java                     o                 Santiago
+UnaryNegExpNode.java                       o                 Santiago
+UnaryNotExpNode.java                       o/+               Karl
+UnaryPlusExpNode.java                      o/+               Santiago
+VariableDeclaratorNode.java                +                 Karl
+WhileStatementNode.java                    o                 Santiago
+
+--
+1998.11.3
+
+ - The exception raised when a variable is undeclared crashes Espresso.
+
+--
+1999.8.18
+
+ Version 0.3 (before exceptions) was tagged. The name of the tag is 
+ 'version-03'.

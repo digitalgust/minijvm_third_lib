@@ -1,0 +1,7 @@
+#!/bin/sh
+# Created by santiago
+
+CLASSPATH=$HOME/espresso:$HOME:$CLASSPATH
+export CLASSPATH
+
+exec java -ms8m espresso.Espresso $*
