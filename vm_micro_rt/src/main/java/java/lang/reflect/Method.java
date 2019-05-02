@@ -7,6 +7,9 @@
 package java.lang.reflect;
 
 import org.mini.reflect.ReflectMethod;
+import org.mini.reflect.vm.RefNative;
+
+import java.lang.annotation.Annotation;
 
 /**
  * A <code>Method</code> provides information about, and access to, a single
@@ -20,16 +23,16 @@ import org.mini.reflect.ReflectMethod;
  * conversion would occur.
  *
  * @see Member
- * @see java.lang.Class
- * @see java.lang.Class#getMethods()
- * @see java.lang.Class#getMethod(String, Class[])
- * @see java.lang.Class#getDeclaredMethods()
- * @see java.lang.Class#getDeclaredMethod(String, Class[])
+ * @see Class
+ * @see Class#getMethods()
+ * @see Class#getMethod(String, Class[])
+ * @see Class#getDeclaredMethods()
+ * @see Class#getDeclaredMethod(String, Class[])
  *
  * @author Kenneth Russell
  * @author Nakul Saraiya
  */
-public final class Method implements Member {
+public class Method<T> extends AccessibleObject implements Member {
 
     Class clazz;
     ReflectMethod refMethod;
@@ -66,7 +69,7 @@ public final class Method implements Member {
     }
 
     @Override
-    public Class getDeclaringClass() {
+    public Class<T> getDeclaringClass() {
         return clazz;
     }
 
@@ -77,6 +80,40 @@ public final class Method implements Member {
 
     @Override
     public boolean isSynthetic() {
-        return false;
+        return (refMethod.accessFlags & Modifier.SYNTHETIC) != 0;
     }
+
+    static public Method findMethod(ClassLoader cloader, String className, String methodName, String methodSignature) {
+        Class c = RefNative.getClassByName(className);
+        if (c != null) {
+            ReflectMethod rm = ReflectMethod.findMethod(className, methodName, methodSignature);
+            if (rm != null) {
+                return new Method(c, rm);
+            }
+        }
+        return null;
+    }
+
+    public String getSignature() {
+        return refMethod.signature;
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> class_) {
+
+        return null;
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+
+        return new Annotation[0];
+
+    }
+
+    @Override
+    public Annotation[] getDeclaredAnnotations() {
+        return getAnnotations();
+    }
+
 }

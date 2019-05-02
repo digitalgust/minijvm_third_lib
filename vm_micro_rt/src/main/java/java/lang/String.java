@@ -1326,7 +1326,7 @@ public final class String implements Comparable<String>, CharSequence {
     }
 
 
-    private static Map<String, String> internMap = new HashMap<>();
+    private static Map<String, String> internMap = new HashMap();
     /**
      * Returns a canonical representation for the string object.
      * <p>

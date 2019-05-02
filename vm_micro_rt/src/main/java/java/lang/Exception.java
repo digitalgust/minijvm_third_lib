@@ -33,5 +33,8 @@ class Exception extends Throwable {
     public Exception(String s) {
         super(s);
     }
+    public Exception(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
 

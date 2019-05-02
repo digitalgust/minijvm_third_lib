@@ -232,17 +232,17 @@ class Foo1 {
 
     public static void main(String args[]) {
         Foo1 obj = new Foo1();
-//        obj.t0();
-//        obj.t1();
-//        obj.t2();
-//        obj.t3();
-//        obj.t4();
+        obj.t0();
+        obj.t1();
+        obj.t2();
+        obj.t3();
+        obj.t4();
         obj.t5();
-//        obj.t6();
-//        obj.t7();
-//        obj.t8();
-//        obj.t9();
-//        obj.t10();
-//        obj.t11();
+        obj.t6();
+        obj.t7();
+        obj.t8();
+        obj.t9();
+        obj.t10();
+        obj.t11();
     }
 }

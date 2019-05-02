@@ -6,7 +6,10 @@
  */
 package java.lang.reflect;
 
+import org.mini.reflect.ReflectClass;
 import org.mini.reflect.ReflectField;
+
+import java.lang.annotation.Annotation;
 
 /**
  * A <code>Field</code> provides information about, and dynamic access to, a
@@ -19,16 +22,16 @@ import org.mini.reflect.ReflectField;
  * a narrowing conversion would occur.
  *
  * @see Member
- * @see java.lang.Class
- * @see java.lang.Class#getFields()
- * @see java.lang.Class#getField(String)
- * @see java.lang.Class#getDeclaredFields()
- * @see java.lang.Class#getDeclaredField(String)
+ * @see Class
+ * @see Class#getFields()
+ * @see Class#getField(String)
+ * @see Class#getDeclaredFields()
+ * @see Class#getDeclaredField(String)
  *
  * @author Kenneth Russell
  * @author Nakul Saraiya
  */
-public final class Field implements Member {
+public final class Field<T> extends AccessibleObject implements Member {
 
     Class clazz;
     ReflectField refField;
@@ -51,7 +54,7 @@ public final class Field implements Member {
     }
 
     @Override
-    public Class getDeclaringClass() {
+    public Class<T> getDeclaringClass() {
         return clazz;
     }
 
@@ -62,7 +65,30 @@ public final class Field implements Member {
 
     @Override
     public boolean isSynthetic() {
-        return false;
+        return (refField.accessFlags & Modifier.SYNTHETIC) != 0;
+    }
+
+    public Class<?> getType() {
+
+        return ReflectClass.getClassBySignature(refField.signature);
+    }
+
+    @Override
+    public <T extends Annotation> T getAnnotation(Class<T> class_) {
+
+        return null;
+    }
+
+    @Override
+    public Annotation[] getAnnotations() {
+
+        return new Annotation[0];
+
+    }
+
+    @Override
+    public Annotation[] getDeclaredAnnotations() {
+        return getAnnotations();
     }
 
     /**

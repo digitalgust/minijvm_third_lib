@@ -15,7 +15,8 @@ import org.mini.reflect.vm.RefNative;
  * @author gust
  */
 public class ReflectField {
-
+    ReflectClass refClass;
+    
     //不可随意改动字段类型及名字，要和native一起改
     public long fieldId;
     public String fieldName;
@@ -24,7 +25,11 @@ public class ReflectField {
     public byte type;
     char bytesTag; //'1','2','4','8','R'
 
-    public ReflectField(long fid) {
+    public ReflectField(ReflectClass c, long fid) {
+        if (fid == 0) {
+            throw new IllegalArgumentException();
+        }
+        refClass = c;
         this.fieldId = fid;
         mapField(fieldId);
         bytesTag = RConst.getBytes(type);

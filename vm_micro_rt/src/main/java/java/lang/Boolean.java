@@ -23,7 +23,7 @@ package java.lang;
  * @version 1.51, 05/11/04
  * @since   JDK1.0
  */
-public final class Boolean implements java.io.Serializable,
+public final class Boolean implements
                                       Comparable<Boolean>
 {
     /** 

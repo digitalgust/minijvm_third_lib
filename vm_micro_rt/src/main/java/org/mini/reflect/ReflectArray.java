@@ -5,7 +5,6 @@
  */
 package org.mini.reflect;
 
-import org.mini.reflect.vm.RConst;
 import org.mini.reflect.vm.RefNative;
 
 /**
@@ -20,106 +19,55 @@ import org.mini.reflect.vm.RefNative;
  */
 public class ReflectArray {
 
-    //不可随意改动字段类型及名字，要和native一起改
     public long arrayId;
-    public byte type;
-    char bytesTag; //'1','2','4','8','R'
-    public int length;
-    long arr_addr;
-    //
+    //不可随意改动字段类型及名字，要和native一起改
+    //native field name ,dont change name
+//    public byte typeTag;
+//    long body_addr;
+//    public int length;
 
-    public ReflectArray(long array) {
-        arrayId = array;
-        mapArray(arrayId);
-        bytesTag = RConst.getBytes(type);
-    }
+    //
+    DirectMemObj dmo;
 
     /**
-     * return data start memory address
      *
-     * @return
+     * @param array
      */
-    public long getDataPtr() {
-        return arr_addr;
+    public ReflectArray(long array) {
+        arrayId = array;
+//        mapArray(arrayId);
+        byte typeTag = getTypeTag(array);
+        long body_addr = getBodyPtr(array);
+        int length = getLength(array);
+        dmo = new DirectMemObj(body_addr, length, typeTag);
     }
 
     public void setValObj(int index, Object val) {
-        switch (bytesTag) {
-            case '1': {
-                if (type == RConst.TAG_BOOLEAN) {
-                    setVal(arrayId, index, ((Boolean) val) ? 1 : 0);
-
-                } else {
-                    setVal(arrayId, index, (Byte) val);
-                }
-                break;
-            }
-            case '2': {
-                if (type == RConst.TAG_CHAR) {
-                    setVal(arrayId, index, (Character) val);
-
-                } else {
-                    setVal(arrayId, index, (Byte) val);
-                }
-                break;
-            }
-            case '4': {
-                setVal(arrayId, index, (Integer) val);
-                break;
-            }
-            case '8': {
-                setVal(arrayId, index, (Long) val);
-                break;
-            }
-            case 'R': {
-                setVal(arrayId, index, RefNative.obj2id(val));
-                break;
-            }
-        }
-        throw new IllegalArgumentException();
+        dmo.setValObj(index, val);
     }
 
     public Object getValObj(int index) {
-
-        switch (bytesTag) {
-            case '1':
-                if (type == RConst.TAG_BOOLEAN) {
-                    return getVal(arrayId, index) != 0;
-                }
-                return ((byte) getVal(arrayId, index));
-
-            case '2':
-                if (type == RConst.TAG_CHAR) {
-                    return ((char) getVal(arrayId, index));
-                }
-                return ((short) getVal(arrayId, index));
-            case '4':
-                return ((int) getVal(arrayId, index));
-            case '8':
-                return getVal(arrayId, index);
-            case 'R': {
-                long objptr = getVal(arrayId, index);
-                if (objptr != 0) {
-                    return RefNative.id2obj(objptr);
-                }
-                return null;
-            }
-        }
-        throw new IllegalArgumentException();
+        return dmo.getValObj(index);
     }
 
-    final native void mapArray(long classId);
+    public static long getBodyPtr(Object array) {
+        if (array == null || !array.getClass().isArray()) {
+            return 0;
+        }
+        return getBodyPtr(RefNative.obj2id(array));
+    }
 
-    static native long getVal(long arrayId, int index);
+//    final native void mapArray(long classId);
+    public static native int getLength(long arr);
 
-    static native void setVal(long arrayId, int index, long val);
+    public static native byte getTypeTag(long arr);
+
+    public static native long getBodyPtr(long array);
 
     /*
      * Private
      */
     public static native Object newArray(Class componentType, int length);
 
-    public static native Object multiNewArray(Class componentType,
-            int[] dimensions)
-            throws IllegalArgumentException;
+    public static native Object multiNewArray(Class componentType, int[] dimensions) throws IllegalArgumentException;
 }

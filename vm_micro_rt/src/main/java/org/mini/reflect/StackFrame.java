@@ -44,7 +44,7 @@ public class StackFrame {
         this.son = son;
         mapRuntime(runtimeId);
         if (methodId != 0) {
-            method = new ReflectMethod(methodId);
+            method = new ReflectMethod(null, methodId);
         }
         if (parentId != 0) {
             parent = new StackFrame(parentId, this);

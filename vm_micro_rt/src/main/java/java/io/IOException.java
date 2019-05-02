@@ -38,5 +38,9 @@ class IOException extends Exception {
     public IOException(String s) {
         super(s);
     }
+    public IOException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
 }
 

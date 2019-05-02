@@ -50,4 +50,8 @@ public class RefNative {
     public static native Object[] getGarbageReferedObjs();
 
     public static native int getGarbageStatus();
+
+    public static native Class defineClass(ClassLoader cloader, String name, byte[] bytecodes, int offset, int length);
+
+    public static native void addJarToClasspath(String jarFullPath);
 }

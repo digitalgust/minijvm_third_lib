@@ -5,14 +5,30 @@
  */
 package com.egls.test;
 
-import static com.egls.test.P.p;
-import static com.egls.test.P.p_static_var;
-
 /**
- *
  * @author gust
  */
-class Foo2 extends P {
+
+class P {
+    public int p_ins_var = 6;
+    static public int p_static_var;
+    int x;
+
+    P() {
+        x = p();
+    }
+
+    static public int p() {
+        return 65;
+    }
+
+    int getX() {
+        return x;
+    }
+
+}
+
+public class Foo2 extends P {
 
     int i;
     static int si;

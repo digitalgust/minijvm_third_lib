@@ -48,6 +48,7 @@ import java.io.Writer;
  */
 public class Throwable {
 
+    Throwable cause;
     /**
      * WARNING: this must be the first variable. Specific details about the
      * <code>Throwable</code> object.
@@ -77,6 +78,15 @@ public class Throwable {
         detailMessage = message;
     }
 
+    public Throwable(Throwable cause) {
+        this.cause = cause;
+    }
+
+    public Throwable(String message, Throwable cause) {
+        detailMessage = message;
+        this.cause = cause;
+    }
+
     /**
      * Returns the error message string of this <code>Throwable</code> object.
      *
@@ -88,6 +98,10 @@ public class Throwable {
      */
     public String getMessage() {
         return detailMessage;
+    }
+
+    public Throwable getCause() {
+        return cause;
     }
 
     /**
@@ -127,6 +141,7 @@ public class Throwable {
         err.print(getCodeStack());
 
     }
+
     public void printStackTrace(Writer writer) {
         try {
             writer.write(getCodeStack());
@@ -134,6 +149,40 @@ public class Throwable {
         }
 
     }
+
+    public StackTraceElement[] getStackTrace() {
+
+        if (backtrace != null) {
+            int count = 0;
+            StackTraceElement sf = (StackTraceElement) backtrace;
+            while (sf != null) {
+                try {
+                    Class clazz = Class.forName(sf.getDeclaringClass());
+                    if (!clazz.isAssignableFrom(Throwable.class)) {
+                        count++;
+                    }
+                } catch (ClassNotFoundException ex) {
+                }
+                sf = sf.parent;
+            }
+            StackTraceElement[] arr = new StackTraceElement[count];
+            sf = (StackTraceElement) backtrace;
+            count = 0;
+            while (sf != null) {
+                try {
+                    Class clazz = Class.forName(sf.getDeclaringClass());
+                    if (!clazz.isAssignableFrom(Throwable.class)) {
+                        arr[count++] = sf;
+                    }
+                } catch (ClassNotFoundException ex) {
+                }
+                sf = sf.parent;
+            }
+            return arr;
+        }
+        return new StackTraceElement[0];
+    }
+
     public String getCodeStack() {
         StringBuilder stack = new StringBuilder();
         String msg = getMessage();

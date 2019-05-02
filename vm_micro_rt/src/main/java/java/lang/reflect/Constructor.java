@@ -20,31 +20,21 @@ import org.mini.reflect.vm.RefNative;
  * narrowing conversion would occur.
  *
  * @see Member
- * @see java.lang.Class
- * @see java.lang.Class#getConstructors()
- * @see java.lang.Class#getConstructor(Class[])
- * @see java.lang.Class#getDeclaredConstructors()
+ * @see Class
+ * @see Class#getConstructors()
+ * @see Class#getConstructor(Class[])
+ * @see Class#getDeclaredConstructors()
  *
  * @author	Kenneth Russell
  * @author	Nakul Saraiya
  */
-public final class Constructor<T> implements Member{
+public final class Constructor<T> extends Method implements Member {
 
-    Class<T> clazz;
-    ReflectMethod refMethod;
 
     public Constructor(Class cl, ReflectMethod refm) {
-        refMethod = refm;
-        clazz = cl;
+        super(cl, refm);
     }
 
-    public String getName() {
-        return refMethod.methodName;
-    }
-
-    public Class<?>[] getParameterTypes() {
-        return refMethod.getParameterTypes();
-    }
 
     public T newInstance(Object... initargs)
             throws InstantiationException, IllegalAccessException,
@@ -53,7 +43,6 @@ public final class Constructor<T> implements Member{
         refMethod.invoke(obj, initargs);
         return (T) obj;
     }
-
 
     @Override
     public Class getDeclaringClass() {

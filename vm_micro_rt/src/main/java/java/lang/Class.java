@@ -5,13 +5,17 @@
  */
 package java.lang;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import org.mini.reflect.ReflectClass;
 import org.mini.reflect.ReflectField;
 import org.mini.reflect.ReflectMethod;
+import org.mini.reflect.vm.RConst;
 import org.mini.reflect.vm.RefNative;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Instances of the class <code>Class</code> represent classes and interfaces in
@@ -41,6 +45,10 @@ import org.mini.reflect.vm.RefNative;
  * @since JDK1.0, CLDC 1.0
  */
 public final class Class<T> {
+
+    private static final int ANNOTATION = 0x00002000;
+    private static final int ENUM = 0x00004000;
+    private static final int SYNTHETIC = 0x00001000;
 
     /*
      * Constructor. Only the Java Virtual Machine creates Class
@@ -219,7 +227,16 @@ public final class Class<T> {
      * @return the fully qualified name of the class or interface represented by
      * this object.
      */
-    public native String getName();
+    String name;
+
+    public String getName() {
+        if (name == null) {
+            name = getName0();
+        }
+        return name;
+    }
+
+    public native String getName0();
 
     /**
      * Finds a resource with a given name in the application's JAR file. This
@@ -285,11 +302,148 @@ public final class Class<T> {
     private static void runCustomCode() {
     }
 
+    /**
+     * Returns the class loader for the class. Some implementations may use null
+     * to represent the bootstrap class loader. This method will return null in
+     * such implementations if this class was loaded by the bootstrap class
+     * loader.
+     *
+     * <p>
+     * If a security manager is present, and the caller's class loader is not
+     * null and the caller's class loader is not the same as or an ancestor of
+     * the class loader for the class whose class loader is requested, then this
+     * method calls the security manager's {@code checkPermission} method with a
+     * {@code RuntimePermission("getClassLoader")} permission to ensure it's ok
+     * to access the class loader for the class.
+     *
+     * <p>
+     * If this object represents a primitive type or void, null is returned.
+     *
+     * @return the class loader that loaded the class or interface represented
+     * by this object.
+     * @throws SecurityException if a security manager exists and its
+     * {@code checkPermission} method denies access to the class loader for the
+     * class.
+     * @see ClassLoader
+     * @see SecurityManager#checkPermission
+     * @see RuntimePermission
+     */
+    public ClassLoader getClassLoader() {
+        ClassLoader cl = getClassLoader0();
+        if (cl == null) {
+            return null;
+        }
+        return cl;
+    }
+
+    // Package-private to allow ClassLoader access
+    native ClassLoader getClassLoader0();
+
     /*
      * Return the Virtual Machine's Class object for the named
      * primitive type.
      */
     static native Class<?> getPrimitiveClass(String name);
+
+    public String getCanonicalName() {
+        if (isPrimitive()) {
+            return getName();
+        } else if (isArray()) {
+            return getComponentType().getCanonicalName() + "[]";
+        } else {
+            return getName().replace('$', '.');
+        }
+    }
+
+    public String getSimpleName() {
+        if (isPrimitive()) {
+            return getName();
+        } else if (isArray()) {
+            return getComponentType().getSimpleName() + "[]";
+        } else {
+            String name = getCanonicalName();
+            int index = name.lastIndexOf('.');
+            if (index >= 0) {
+                return name.substring(index + 1);
+            } else {
+                return name;
+            }
+        }
+    }
+
+    public native boolean isPrimitive();
+
+    public native Class<? super T> getSuperclass();
+
+    public boolean isEnum() {
+        // An enum must both directly extend java.lang.Enum and have
+        // the ENUM bit set; classes for specialized enum constants
+        // don't do the former.
+        return (this.getModifiers() & ENUM) != 0
+                && this.getSuperclass() == Enum.class;
+    }
+
+    /**
+     * Returns the elements of this enum class or null if this Class object does
+     * not represent an enum type.
+     *
+     * @return an array containing the values comprising the enum class
+     * represented by this Class object in the order they're declared, or null
+     * if this Class object does not represent an enum type
+     * @since 1.5
+     */
+    public T[] getEnumConstants() {
+        T[] values = getEnumConstantsShared();
+        return (values != null) ? values.clone() : null;
+    }
+
+    /**
+     * Returns the elements of this enum class or null if this Class object does
+     * not represent an enum type; identical to getEnumConstants except that the
+     * result is uncloned, cached, and shared by all callers.
+     */
+    T[] getEnumConstantsShared() {
+        if (enumConstants == null) {
+            if (!isEnum()) {
+                return null;
+            }
+            try {
+                final Method values = getMethod("values");
+                T[] temporaryConstants = (T[]) values.invoke(null);
+                enumConstants = temporaryConstants;
+            } // These can happen when users concoct enum-like classes
+            // that don't comply with the enum spec.
+            catch (Exception ex) {
+                return null;
+            }
+        }
+        return enumConstants;
+    }
+    private volatile transient T[] enumConstants = null;
+
+    /**
+     * Returns a map from simple name to enum constant. This package-private
+     * method is used internally by Enum to implement
+     * {@code public static <T extends Enum<T>> T valueOf(Class<T>, String)}
+     * efficiently. Note that the map is returned by this method is created
+     * lazily on first use. Typically it won't ever get created.
+     */
+    Map<String, T> enumConstantDirectory() {
+        if (enumConstantDirectory == null) {
+            T[] universe = getEnumConstantsShared();
+            if (universe == null) {
+                throw new IllegalArgumentException(
+                        getName() + " is not an enum type");
+            }
+            Map<String, T> m = new HashMap(2 * universe.length);
+            for (T constant : universe) {
+                m.put(((Enum<?>) constant).name(), constant);
+            }
+            enumConstantDirectory = m;
+        }
+        return enumConstantDirectory;
+    }
+    private volatile transient Map<String, T> enumConstantDirectory = null;
 
     /**
      *
@@ -305,7 +459,22 @@ public final class Class<T> {
         return classHandle;
     }
 
-    public Method getMethod(String name, Class<?>... parameterTypes) {
+    public int getModifiers() {
+        if (refClass == null) {
+            refClass = new ReflectClass(classHandle);
+        }
+        return refClass.accessFlags;
+    }
+
+    public Method getMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
+        Method m = getDeclaredMethod(name, parameterTypes);
+        if ((m.getModifiers() & RConst.ACC_PUBLIC) != 0) {
+            return m;
+        }
+        throw new NoSuchMethodException(name);
+    }
+
+    public Method getDeclaredMethod(String name, Class<?>... parameterTypes) throws NoSuchMethodException {
         if (refClass == null) {
             refClass = new ReflectClass(classHandle);
         }
@@ -313,10 +482,32 @@ public final class Class<T> {
         if (rm != null) {
             return new Method(this, rm);
         }
-        return null;
+        throw new NoSuchMethodException(name);
     }
 
     public Method[] getMethods() {
+        if (refClass == null) {
+            refClass = new ReflectClass(classHandle);
+        }
+        ReflectMethod[] rms = refClass.getMethods();
+        int mcount = 0;
+        for (int i = 0, imax = rms.length; i < imax; i++) {
+            if (rms[i].methodName.charAt(0) != '<'
+                    && (rms[i].accessFlags & (RConst.ACC_PUBLIC)) != 0) {
+                mcount++;
+            }
+        }
+        Method[] ms = new Method[mcount];
+        for (int i = 0; i < mcount; i++) {
+            if (rms[i].methodName.charAt(0) != '<'
+                    && (rms[i].accessFlags & (RConst.ACC_PUBLIC)) != 0) {
+                ms[i] = new Method(this, rms[i]);
+            }
+        }
+        return ms;
+    }
+
+    public Method[] getDeclaredMethods() {
         if (refClass == null) {
             refClass = new ReflectClass(classHandle);
         }
@@ -336,15 +527,12 @@ public final class Class<T> {
         return ms;
     }
 
-    public Constructor<T> getConstructor(Class<?>... parameterTypes) {
-        if (refClass == null) {
-            refClass = new ReflectClass(classHandle);
+    public Constructor<T> getConstructor(Class<?>... parameterTypes) throws NoSuchMethodException {
+        Constructor<T> c = getDeclaredConstructor(parameterTypes);
+        if ((c.getModifiers() & RConst.ACC_PUBLIC) != 0) {
+            return c;
         }
-        ReflectMethod rm = refClass.getMethod("<init>", parameterTypes);
-        if (rm != null) {
-            return new Constructor<T>(this, rm);
-        }
-        return null;
+        throw new NoSuchMethodException();
     }
 
     public Constructor<?>[] getConstructors() {
@@ -367,7 +555,26 @@ public final class Class<T> {
         return cs;
     }
 
-    public Field getField(String name) {
+    public Constructor<T> getDeclaredConstructor(Class<?>... parameterTypes) throws NoSuchMethodException {
+        if (refClass == null) {
+            refClass = new ReflectClass(classHandle);
+        }
+        ReflectMethod rm = refClass.getMethod("<init>", parameterTypes);
+        if (rm != null) {
+            return new Constructor(this, rm);
+        }
+        throw new NoSuchMethodException();
+    }
+
+    public Field getField(String name) throws NoSuchFieldException {
+        Field f = getDeclaredField(name);
+        if ((f.getModifiers() & RConst.ACC_PUBLIC) != 0) {
+            return f;
+        }
+        throw new NoSuchFieldException();
+    }
+
+    public Field getDeclaredField(String name) throws NoSuchFieldException {
         if (refClass == null) {
             refClass = new ReflectClass(classHandle);
         }
@@ -375,10 +582,31 @@ public final class Class<T> {
         if (rf != null) {
             return new Field(this, rf);
         }
-        return null;
+        throw new NoSuchFieldException();
     }
 
     public Field[] getFields() {
+        if (refClass == null) {
+            refClass = new ReflectClass(classHandle);
+        }
+        ReflectField[] rfs = refClass.getFields();
+        int fcount = 0;
+        for (ReflectField rf : rfs) {
+            if ((rf.accessFlags & RConst.ACC_PUBLIC) != 0) {
+                fcount++;
+            }
+        }
+
+        Field[] fs = new Field[fcount];
+        for (int i = 0; i < fcount; i++) {
+            if ((rfs[i].accessFlags & RConst.ACC_PUBLIC) != 0) {
+                fs[i] = new Field(this, rfs[i]);
+            }
+        }
+        return fs;
+    }
+
+    public Field[] getDeclaredFields() {
         if (refClass == null) {
             refClass = new ReflectClass(classHandle);
         }
@@ -418,4 +646,24 @@ public final class Class<T> {
             return null;
         }
     }
+
+    public Class getDeclaringClass() {
+        if (isPrimitive() || isArray()) {
+            return null;
+        } else {
+            return this;//todo
+        }
+    }
+
+    public boolean desiredAssertionStatus() {
+        return false;
+    }
+
+    public T cast(Object obj) {
+        if (obj != null && !isInstance(obj)) {
+            throw new ClassCastException();
+        }
+        return (T) obj;
+    }
+
 }
