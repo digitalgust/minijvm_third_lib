@@ -4,6 +4,6 @@ JRegex : A compact and efficient regular expression library for Java. forked fro
 
 luau  :  lua in java . forked from : https://github.com/luaj/luaj     
 
-vm_micro_rt : A [minijvm|https://github.com/digitalgust/miniJVM] runtime library,  less classes.    
+vm_micro_rt : A [minijvm](https://github.com/digitalgust/miniJVM) runtime library,  less classes.    
 
-vm_test_rt : A [minijvm|https://github.com/digitalgust/miniJVM] runtime library,  24 class only , test only .      
+vm_test_rt : A [minijvm](https://github.com/digitalgust/miniJVM) runtime library,  24 class only , test only .      
